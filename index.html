@@ -1,1 +1,102 @@
-Test PWA
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>PWA Тест Кабинета</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#1976d2">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+    }
+    .card {
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 10px;
+      background: #f8f8f8;
+      margin-top: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #888;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px;
+      width: 100%;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>PWA Тест</h1>
+  <p>Это тестовый мини-кабинет. Данные сохраняются локально и доступны офлайн.</p>
+
+  <div class="card">
+    <h3>Ваше имя</h3>
+    <input id="username" placeholder="Введите имя">
+
+    <button id="saveBtn">Сохранить</button>
+  </div>
+
+  <p id="result"></p>
+
+  <button id="installBtn" hidden>Установить приложение</button>
+
+  <script>
+    // localStorage загрузка
+    const usernameInput = document.getElementById('username');
+    const savedName = localStorage.getItem('username');
+    if (savedName) {
+      usernameInput.value = savedName;
+      document.getElementById('result').innerText = "Сохранено: " + savedName;
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      const name = usernameInput.value.trim();
+      localStorage.setItem('username', name);
+      document.getElementById('result').innerText = "Сохранено: " + name;
+    });
+
+    // Service Worker регистрация
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('SW OK'))
+        .catch(err => console.error('SW error:', err));
+    }
+
+    // Установка (beforeinstallprompt)
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.hidden = false;
+    });
+
+    installBtn.addEventListener('click', async () => {
+      installBtn.hidden = true;
+      if (!deferredPrompt) return;
+
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log("Install result:", outcome);
+      deferredPrompt = null;
+    });
+  </script>
+</body>
+</html>
