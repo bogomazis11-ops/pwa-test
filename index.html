@@ -80,7 +80,7 @@
 
     if (storedUser) {
       // Redirection automatique vers l'utilisateur enregistré
-      window.location.replace(window.location.pathname + "?user=" + storedUser);
+      window.location.replace("index.html?user=" + storedUser);
       throw new Error("Redirection vers utilisateur sauvegardé");
     }
   }
@@ -148,3 +148,4 @@
 
 </body>
 </html>
+
