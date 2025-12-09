@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <title>PWA Тест Кабинета</title>
+  <title>MARCHE - LCF</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="manifest" href="manifest.webmanifest">
@@ -43,42 +43,46 @@
 
 <body>
   <h1>PWA Тест</h1>
-  <p>Это тестовый мини-кабинет. Данные сохраняются локально и доступны офлайн.</p>
+  <p>Il s'agit d'un mini-compte d'essai. Les données sont stockées 
+sur le serveur et disponibles dès la connexion.
+La synchronisation est automatique sur demande. 
+Lors de votre première connexion, veuillez accepter 
+l'installation de l'application..</p>
 
   <div class="card">
-    <h3>Ваше имя</h3>
-    <input id="username" placeholder="Введите имя">
+    <h3>Votre NOM</h3>
+    <input id="username" placeholder="NOM">
 
-    <button id="saveBtn">Сохранить</button>
+    <button id="saveBtn">sauvegarder</button>
   </div>
 
   <p id="result"></p>
 
-  <button id="installBtn" hidden>Установить приложение</button>
+  <button id="installBtn" hidden>Installez l'application</button>
 
   <script>
-    // localStorage загрузка
+    // localStorage chargement
     const usernameInput = document.getElementById('username');
     const savedName = localStorage.getItem('username');
     if (savedName) {
       usernameInput.value = savedName;
-      document.getElementById('result').innerText = "Сохранено: " + savedName;
+      document.getElementById('result').innerText = "Enregistré: " + savedName;
     }
 
     document.getElementById('saveBtn').addEventListener('click', () => {
       const name = usernameInput.value.trim();
       localStorage.setItem('username', name);
-      document.getElementById('result').innerText = "Сохранено: " + name;
+      document.getElementById('result').innerText = "Enregistré: " + name;
     });
 
-    // Service Worker регистрация
+    // Service Worker inscription
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js')
         .then(() => console.log('SW OK'))
         .catch(err => console.error('SW error:', err));
     }
 
-    // Установка (beforeinstallprompt)
+    // Installation (beforeinstallprompt)
     let deferredPrompt;
     const installBtn = document.getElementById('installBtn');
 
