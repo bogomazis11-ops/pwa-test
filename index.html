@@ -101,6 +101,34 @@
       await deferredPrompt.userChoice;
       deferredPrompt = null;
     });
+// ---------------------------
+// Проверка доступа через QR
+// ---------------------------
+
+// Разбор параметров URL
+const params = new URLSearchParams(window.location.search);
+const currentUser = params.get("user");
+
+// Если user отсутствует — блокируем доступ
+if (!currentUser) {
+  document.body.innerHTML = `
+    <h2 style="color:red;">Accès refusé</h2>
+    <p>Vous devez utiliser votre QR-code personnel pour accéder à l'application.</p>
+  `;
+  throw new Error("Access denied");
+}
+
+// Сохраняем в localStorage, чтобы пользователь не вводил QR каждый раз
+localStorage.setItem("loggedUser", currentUser);
+
+// Если QR поменялся — обновляем
+const storedUser = localStorage.getItem("loggedUser");
+if (storedUser !== currentUser) {
+  localStorage.setItem("loggedUser", currentUser);
+}
+
+    
   </script>
 </body>
 </html>
+
