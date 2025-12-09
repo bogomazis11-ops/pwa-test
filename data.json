@@ -1,8 +1,20 @@
 {
-  "prenom": "Ivan",
-  "nom": "BOHOMAZ",
-  "licence": "LCF-00001111",
-  "actif": true
+  "fred": {
+    "prenom": "Fred",
+    "nom": "Durand",
+    "licence": "LCF-48291",
+    "actif": true
+  },
+  "christelle": {
+    "prenom": "Christelle",
+    "nom": "Martin",
+    "licence": "LCF-77320",
+    "actif": false
+  },
+  "ivan": {
+    "prenom": "Ivan",
+    "nom": "Bogomaz",
+    "licence": "LCF-00123",
+    "actif": true
+  }
 }
-
-
