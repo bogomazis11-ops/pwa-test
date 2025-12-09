@@ -101,6 +101,19 @@ l'installation de l'application..</p>
       console.log("Install result:", outcome);
       deferredPrompt = null;
     });
+      // Chargement depuis data.json (base de données simulée)
+    fetch('data.json')
+      .then(r => r.json())
+      .then(db => {
+        // Exemple : charger automatiquement l'utilisateur "ivan"
+        const user = db.ivan;
+        if (user) {
+          usernameInput.value = user.prenom + ' ' + user.nom;
+          document.getElementById('result').innerText = 'Enregistré (DB): ' + user.prenom;
+        }
+      })
+      .catch(err => console.error('DB error:', err));
+
   </script>
 </body>
 </html>
