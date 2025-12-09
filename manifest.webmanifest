@@ -1,7 +1,7 @@
 {
-  "name": "LCF-MARCHE",
-  "short_name": "LCF-MARCH",
-  "start_url": ".",
+  "name": "MARCHE - LCF",
+  "short_name": "MARCHE",
+  "start_url": "/pwa-test/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1976d2",
