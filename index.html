@@ -43,11 +43,13 @@
 
 <body>
   <h1>PWA Тест</h1>
-  <p>Il s'agit d'un mini-compte d'essai. Les données sont stockées 
-sur le serveur et disponibles dès la connexion.
-La synchronisation est automatique sur demande. 
-Lors de votre première connexion, veuillez accepter 
-l'installation de l'application..</p>
+  <p>
+    Il s'agit d'un mini-compte d'essai. Les données sont stockées 
+    sur le serveur et disponibles dès la connexion.
+    La synchronisation est automatique sur demande. 
+    Lors de votre première connexion, veuillez accepter 
+    l'installation de l'application.
+  </p>
 
   <div class="card">
     <h3>Votre NOM</h3>
@@ -61,19 +63,8 @@ l'installation de l'application..</p>
   <button id="installBtn" hidden>Installez l'application</button>
 
   <script>
-    // localStorage chargement
+    // Référence du champ
     const usernameInput = document.getElementById('username');
-    const savedName = localStorage.getItem('username');
-    if (savedName) {
-      usernameInput.value = savedName;
-      document.getElementById('result').innerText = "Enregistré: " + savedName;
-    }
-
-    document.getElementById('saveBtn').addEventListener('click', () => {
-      const name = usernameInput.value.trim();
-      localStorage.setItem('username', name);
-      document.getElementById('result').innerText = "Enregistré: " + name;
-    });
 
     // Service Worker inscription
     if ('serviceWorker' in navigator) {
@@ -101,15 +92,16 @@ l'installation de l'application..</p>
       console.log("Install result:", outcome);
       deferredPrompt = null;
     });
-      // Chargement depuis data.json (base de données simulée)
-    fetch('data.json')
+
+    // Chargement des données depuis data.json (client léger = toujours en ligne)
+    fetch('data.json', { cache: 'no-store' })
       .then(r => r.json())
       .then(db => {
-        // Exemple : charger automatiquement l'utilisateur "ivan"
-        const user = db.ivan;
+        const user = db.ivan; // utilisateur par défaut pour test
         if (user) {
-          usernameInput.value = user.prenom + ' ' + user.nom;
-          document.getElementById('result').innerText = 'Enregistré (DB): ' + user.prenom;
+          usernameInput.value = `${user.prenom} ${user.nom}`;
+          document.getElementById('result').innerText =
+            `Enregistré (DB): ${user.prenom}`;
         }
       })
       .catch(err => console.error('DB error:', err));
