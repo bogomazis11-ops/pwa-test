@@ -80,7 +80,7 @@
 
     if (storedUser) {
       // Redirection automatique vers l'utilisateur enregistré
-      window.location.replace("index.html?user=" + storedUser);
+      window.location.replace(window.location.pathname + "?user=" + storedUser);
       throw new Error("Redirection vers utilisateur sauvegardé");
     }
   }
@@ -92,6 +92,13 @@
   const card = document.getElementById("card");
 
   if (!finalUser) {
+
+    // Récupération utilisateur sauvegardé (PWA installée)
+    const storedUser = localStorage.getItem("loggedUser");
+    if (storedUser) {
+      window.location.replace("index.html?user=" + storedUser);
+      return;
+    }
     locked.style.display = "block";
   } else {
     // CHARGEMENT DES DONNÉES UTILISATEUR
@@ -148,4 +155,3 @@
 
 </body>
 </html>
-
