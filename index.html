@@ -60,31 +60,50 @@
     <p><b>Statut:</b> <span id="actif"></span></p>
   </div>
 
-  <!-- Bouton d'installation PWA -->
   <button id="installBtn" hidden>Installer l'application</button>
 
-
 <script>
-  // EXTRACTION DU PARAMÈTRE ?user=
+  // PARAMÈTRE D'IDENTIFICATION VIA QR
   const params = new URLSearchParams(window.location.search);
   const userId = params.get("user");
+
+  // === MÉCANISME D'AUTHENTIFICATION AUTOMATIQUE (PWA INSTALLÉE) ===
+
+  // 1. Si userId existe (entrée via QR), on l'enregistre
+  if (userId) {
+    localStorage.setItem("loggedUser", userId);
+  }
+
+  // 2. Si l'application est lancée SANS ?user= (cas d'une PWA installée)
+  if (!userId) {
+    const storedUser = localStorage.getItem("loggedUser");
+
+    if (storedUser) {
+      // Redirection automatique vers l'utilisateur enregistré
+      window.location.replace(window.location.pathname + "?user=" + storedUser);
+      throw new Error("Redirection vers utilisateur sauvegardé");
+    }
+  }
+
+  // APRÈS CE POINT, userId DOIT ÊTRE VALIDÉ
+  const finalUser = userId || localStorage.getItem("loggedUser");
 
   const locked = document.getElementById("locked");
   const card = document.getElementById("card");
 
-  if (!userId) {
+  if (!finalUser) {
     locked.style.display = "block";
   } else {
-    // CHARGEMENT DATA.JSON
+    // CHARGEMENT DES DONNÉES UTILISATEUR
     fetch("data.json")
       .then(r => r.json())
       .then(data => {
-        if (!data[userId]) {
+        if (!data[finalUser]) {
           locked.style.display = "block";
           return;
         }
 
-        const u = data[userId];
+        const u = data[finalUser];
         document.getElementById("prenom").textContent = u.prenom;
         document.getElementById("nom").textContent = u.nom;
         document.getElementById("licence").textContent = u.licence;
@@ -99,14 +118,12 @@
       });
   }
 
-
   // SERVICE WORKER
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js')
       .then(() => console.log('SW installé'))
       .catch(err => console.error('SW erreur:', err));
   }
-
 
   // INSTALLATION PWA
   let deferredPrompt;
