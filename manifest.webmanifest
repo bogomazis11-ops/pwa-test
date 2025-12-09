@@ -1,6 +1,6 @@
 {
-  "name": "PWA тест",
-  "short_name": "PWA тест",
+  "name": "LCF-MARCHE",
+  "short_name": "LCF-MARCH",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
