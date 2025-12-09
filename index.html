@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <title>MARCHE - Accès sécurisé</title>
+  <title>MARCHE - LCF</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="manifest" href="manifest.webmanifest">
@@ -12,21 +12,21 @@
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
-      background: #f5f5f5;
+      padding: 0;
     }
     .card {
       border: 1px solid #ccc;
-      padding: 20px;
-      border-radius: 12px;
-      background: white;
-      margin-top: 25px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 15px;
+      border-radius: 10px;
+      background: #f8f8f8;
+      margin-top: 20px;
     }
-    .locked {
-      text-align: center;
-      padding: 40px;
-      font-size: 20px;
-      color: #444;
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #888;
     }
     button {
       margin-top: 15px;
@@ -42,116 +42,65 @@
 </head>
 
 <body>
-  <h1>MARCHE — Accès personnel</h1>
-  <p>Accès sécurisé réservé aux utilisateurs identifiés via QR-code.</p>
+  <h1>PWA Тест</h1>
+  <p>Il s'agit d'un mini-compte d'essai. Les données sont stockées 
+sur le serveur et disponibles dès la connexion.
+La synchronisation est automatique sur demande. 
+Lors de votre première connexion, veuillez accepter 
+l'installation de l'application..</p>
 
-  <div id="locked" class="locked" style="display:none">
-    ❌ <br> Accès refusé.<br><br>
-    Ce lien ne contient pas d'identifiant valide.<br>
-    Veuillez scanner votre QR-code personnel.
+  <div class="card">
+    <h3>Votre NOM</h3>
+    <input id="username" placeholder="NOM">
+
+    <button id="saveBtn">sauvegarder</button>
   </div>
 
-  <div id="card" class="card" style="display:none">
-    <h3>Vos informations</h3>
+  <p id="result"></p>
 
-    <p><b>Prénom:</b> <span id="prenom"></span></p>
-    <p><b>Nom:</b> <span id="nom"></span></p>
-    <p><b>Licence:</b> <span id="licence"></span></p>
-    <p><b>Statut:</b> <span id="actif"></span></p>
-  </div>
+  <button id="installBtn" hidden>Installez l'application</button>
 
-  <button id="installBtn" hidden>Installer l'application</button>
-
-<script>
-  // PARAMÈTRE D'IDENTIFICATION VIA QR
-  const params = new URLSearchParams(window.location.search);
-  const userId = params.get("user");
-
-  // === MÉCANISME D'AUTHENTIFICATION AUTOMATIQUE (PWA INSTALLÉE) ===
-
-  // 1. Si userId existe (entrée via QR), on l'enregistre
-  if (userId) {
-    localStorage.setItem("loggedUser", userId);
-  }
-
-  // 2. Si l'application est lancée SANS ?user= (cas d'une PWA installée)
-  if (!userId) {
-    const storedUser = localStorage.getItem("loggedUser");
-
-    if (storedUser) {
-      // Redirection automatique vers l'utilisateur enregistré
-      window.location.replace(window.location.pathname + "?user=" + storedUser);
-      throw new Error("Redirection vers utilisateur sauvegardé");
+  <script>
+    // localStorage chargement
+    const usernameInput = document.getElementById('username');
+    const savedName = localStorage.getItem('username');
+    if (savedName) {
+      usernameInput.value = savedName;
+      document.getElementById('result').innerText = "Enregistré: " + savedName;
     }
-  }
 
-  // APRÈS CE POINT, userId DOIT ÊTRE VALIDÉ
-  const finalUser = userId || localStorage.getItem("loggedUser");
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      const name = usernameInput.value.trim();
+      localStorage.setItem('username', name);
+      document.getElementById('result').innerText = "Enregistré: " + name;
+    });
 
-  const locked = document.getElementById("locked");
-  const card = document.getElementById("card");
-
-  if (!finalUser) {
-
-    // Récupération utilisateur sauvegardé (PWA installée)
-    const storedUser = localStorage.getItem("loggedUser");
-    if (storedUser) {
-      window.location.replace("index.html?user=" + storedUser);
-      return;
+    // Service Worker inscription
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('SW OK'))
+        .catch(err => console.error('SW error:', err));
     }
-    locked.style.display = "block";
-  } else {
-    // CHARGEMENT DES DONNÉES UTILISATEUR
-    fetch("data.json")
-      .then(r => r.json())
-      .then(data => {
-        if (!data[finalUser]) {
-          locked.style.display = "block";
-          return;
-        }
 
-        const u = data[finalUser];
-        document.getElementById("prenom").textContent = u.prenom;
-        document.getElementById("nom").textContent = u.nom;
-        document.getElementById("licence").textContent = u.licence;
-        document.getElementById("actif").textContent = u.actif ? "Actif" : "Non actif";
+    // Installation (beforeinstallprompt)
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
 
-        card.style.display = "block";
-      })
-      .catch(err => {
-        console.error("Erreur chargement JSON", err);
-        locked.innerHTML = "⚠ Impossible de charger les données.";
-        locked.style.display = "block";
-      });
-  }
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.hidden = false;
+    });
 
-  // SERVICE WORKER
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log('SW installé'))
-      .catch(err => console.error('SW erreur:', err));
-  }
+    installBtn.addEventListener('click', async () => {
+      installBtn.hidden = true;
+      if (!deferredPrompt) return;
 
-  // INSTALLATION PWA
-  let deferredPrompt;
-  const installBtn = document.getElementById('installBtn');
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBtn.hidden = false;
-  });
-
-  installBtn.addEventListener('click', async () => {
-    installBtn.hidden = true;
-    if (!deferredPrompt) return;
-
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log("Install:", outcome);
-    deferredPrompt = null;
-  });
-</script>
-
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log("Install result:", outcome);
+      deferredPrompt = null;
+    });
+  </script>
 </body>
 </html>

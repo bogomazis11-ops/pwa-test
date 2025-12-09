@@ -1,28 +1,25 @@
-// Service Worker optimisé pour éviter les problèmes de cache
+const CACHE_NAME = 'pwa-test-v2';
+const ASSETS = [
+  '/',
+  '/index.html'
+];
 
 self.addEventListener('install', (event) => {
-  console.log('SW installé');
-  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
 });
 
 self.addEventListener('activate', (event) => {
-  console.log('SW activé');
-  clients.claim();
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    )
+  );
 });
 
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-
-  // Ne jamais mettre en cache index.html (important pour la redirection auto PWA)
-  if (url.pathname.endsWith('/index.html')) {
-    return fetch(event.request);
-  }
-
-  // Ne jamais mettre en cache data.json (toujours version la plus récente)
-  if (url.pathname.endsWith('/data.json')) {
-    return fetch(event.request);
-  }
-
-  // Par défaut, laisser passer toutes les requêtes sans cache
-  return fetch(event.request);
+  event.respondWith(
+    caches.match(event.request).then(r => r || fetch(event.request))
+  );
 });
