@@ -1,7 +1,7 @@
 {
   "name": "MARCHE - LCF",
   "short_name": "MARCHE",
-  "start_url": "/pwa-test/index.html",
+  "start_url": "/pwa-test/index.html?launch=true",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1976d2",
@@ -18,4 +18,5 @@
     }
   ]
 }
+
 
