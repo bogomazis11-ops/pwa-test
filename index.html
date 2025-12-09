@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="fr">
 <head>
   <meta charset="utf-8">
   <title>MARCHE - LCF</title>
@@ -42,47 +42,48 @@
 </head>
 
 <body>
-  <h1>LCF - MARCHE</h1>
-  <p>Il s'agit d'un mini-compte d'essai. Les données sont stockées 
-sur le serveur et disponibles dès la connexion.
-La synchronisation est automatique sur demande. 
-Lors de votre première connexion, veuillez accepter 
-l'installation de l'application..</p>
+  <h1>MARCHE - Application de test</h1>
+  <p>
+    Cette application charge des données depuis un serveur (fichier JSON).
+    Les mises à jour apparaissent automatiquement dès que la connexion est disponible.
+  </p>
 
   <div class="card">
-    <h3>Votre NOM</h3>
-    <input id="username" placeholder="NOM">
-
-    <button id="saveBtn">sauvegarder</button>
+    <h3>Données du compte</h3>
+    <input id="fullname" placeholder="Chargement..." disabled>
+    <p id="licence"></p>
+    <p id="status"></p>
   </div>
 
-  <p id="result"></p>
-
-  <button id="installBtn" hidden>Installez l'application</button>
+  <button id="installBtn" hidden>Installer l'application</button>
 
   <script>
-    // localStorage chargement
-    const usernameInput = document.getElementById('username');
-    const savedName = localStorage.getItem('username');
-    if (savedName) {
-      usernameInput.value = savedName;
-      document.getElementById('result').innerText = "Enregistré: " + savedName;
+    // Chargement des données depuis data.json
+    async function loadUser() {
+      try {
+        const resp = await fetch('data.json?cache=' + Date.now());
+        const data = await resp.json();
+
+        document.getElementById('fullname').value = data.prenom + " " + data.nom;
+        document.getElementById('licence').innerText = "Licence: " + data.licence;
+        document.getElementById('status').innerText =
+          "Actif: " + (data.actif ? "Oui" : "Non");
+
+      } catch (e) {
+        document.getElementById('fullname').value = "Erreur de connexion";
+      }
     }
 
-    document.getElementById('saveBtn').addEventListener('click', () => {
-      const name = usernameInput.value.trim();
-      localStorage.setItem('username', name);
-      document.getElementById('result').innerText = "Enregistré: " + name;
-    });
+    document.addEventListener("DOMContentLoaded", loadUser);
 
-    // Service Worker inscription
+    // Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js')
         .then(() => console.log('SW OK'))
         .catch(err => console.error('SW error:', err));
     }
 
-    // Installation (beforeinstallprompt)
+    // Installation PWA
     let deferredPrompt;
     const installBtn = document.getElementById('installBtn');
 
@@ -97,11 +98,9 @@ l'installation de l'application..</p>
       if (!deferredPrompt) return;
 
       deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log("Install result:", outcome);
+      await deferredPrompt.userChoice;
       deferredPrompt = null;
     });
   </script>
 </body>
 </html>
-
